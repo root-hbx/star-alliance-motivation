@@ -48,7 +48,7 @@ def read_satellite_data(file_path):
 def create_earth_base_cartopy():
     """创建基础的地球地图 - 矩形投影版本"""
     # 创建图形和地图投影 - 使用PlateCarree投影显示矩形区域
-    fig = plt.figure(figsize=(14, 10))
+    fig = plt.figure(figsize=(14, 13))
     # 完全占满画布，不留任何边距
     ax = plt.axes(projection=ccrs.PlateCarree(), position=[0.0, 0.0, 1.0, 1.0])
     
