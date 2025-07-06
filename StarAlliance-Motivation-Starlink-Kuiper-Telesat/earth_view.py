@@ -29,7 +29,7 @@ if not CARTOPY_AVAILABLE and not BASEMAP_AVAILABLE:
 
 CONSTELLATIONS = {
         'starlink': {'file': './classified_gs/starlink_gs.txt', 'color': "#7fcdbb", 'alpha': 0.5, 'label': 'Starlink'},
-        'oneweb':   {'file': './classified_gs/oneweb_gs.txt',   'color': '#FDD835', 'alpha': 0.5, 'label': 'OneWeb'},
+        'kuiper':   {'file': './classified_gs/kuiper_gs.txt',   'color': '#FDD835', 'alpha': 0.5, 'label': 'Kuiper'},
         'telesat':  {'file': './classified_gs/telesat_gs.txt',  'color': '#238443', 'alpha': 0.5, 'label': 'Telesat'}
     }
 
@@ -89,7 +89,7 @@ def plot_constellation_coverage(ax, constellation_config, constellation_name):
     # 根据星座类型设置不同的覆盖半径
     if constellation_name == 'telesat':
         coverage_radius_km = 1000  # Telesat使用1000km半径
-    elif constellation_name == 'oneweb':
+    elif constellation_name == 'kuiper':
         coverage_radius_km = 600
     else:
         coverage_radius_km = 600
@@ -193,8 +193,8 @@ def plot_all_constellations_cartopy():
     legend_elements = []
     coverage_info = []
     
-    # 绘制所有星座 - 按指定顺序：Telesat(底层) -> Starlink(中层) -> OneWeb(顶层)
-    draw_order = ['telesat', 'starlink', 'oneweb']
+    # 绘制所有星座 - 按指定顺序：Telesat(底层) -> Starlink(中层) -> Kuiper(顶层)
+    draw_order = ['telesat', 'starlink', 'kuiper']
     
     for constellation_name in draw_order:
         if constellation_name in constellations:
@@ -203,7 +203,7 @@ def plot_all_constellations_cartopy():
             if satellite_count > 0:
                 total_satellites += satellite_count
                 coverage_info.append(f"{config['label']}: {satellite_count} sats ({coverage_radius}km)")
-                print(f"绘制 {satellite_count} 个 {config['label']} 卫星覆盖区域 (半径: {coverage_radius}km) - {'顶层' if constellation_name=='oneweb' else '中层' if constellation_name=='starlink' else '底层'}")
+                print(f"绘制 {satellite_count} 个 {config['label']} 卫星覆盖区域 (半径: {coverage_radius}km) - {'顶层' if constellation_name=='kuiper' else '中层' if constellation_name=='starlink' else '底层'}")
                 # 添加到图例
                 from matplotlib.patches import Patch
                 legend_elements.append(Patch(facecolor=config['color'], alpha=0.7, label=config['label'],
@@ -244,8 +244,8 @@ def plot_earth_coverage_cartopy():
     print("\n1. 生成 Starlink 覆盖图...")
     plot_single_constellation_cartopy('starlink')
     
-    print("\n2. 生成 OneWeb 覆盖图...")
-    plot_single_constellation_cartopy('oneweb')
+    print("\n2. 生成 Kuiper 覆盖图...")
+    plot_single_constellation_cartopy('kuiper')
     
     print("\n3. 生成 Telesat 覆盖图...")
     plot_single_constellation_cartopy('telesat')
@@ -409,7 +409,7 @@ if __name__ == "__main__":
     print("=== 高级卫星覆盖图生成工具 ===")
     print("将生成4张高质量图片：")
     print("1. cartopy_starlink.png - Starlink单独覆盖图 (600km)")
-    print("2. cartopy_oneweb.png - OneWeb单独覆盖图 (600km)") 
+    print("2. cartopy_kuiper.png - Kuiper单独覆盖图 (600km)") 
     print("3. cartopy_telesat.png - Telesat单独覆盖图 (1000km)")
     print("4. cartopy_all.png - 三星座合并覆盖图")
     
@@ -420,7 +420,7 @@ if __name__ == "__main__":
         print("\n🎉 所有高质量图片生成完成！")
         print("\n生成的文件:")
         print("├── cartopy_starlink.png (600km覆盖)")
-        print("├── cartopy_oneweb.png (600km覆盖)")
+        print("├── cartopy_kuiper.png (600km覆盖)")
         print("├── cartopy_telesat.png (1000km覆盖)")
         print("└── cartopy_all.png (多星座合并)")
     else:

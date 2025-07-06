@@ -13,7 +13,7 @@ def classify_satellites():
     # 输出文件路径
     output_files = {
         1: os.path.join(output_dir, "starlink_gs.txt"),
-        2: os.path.join(output_dir, "oneweb_gs.txt"),
+        2: os.path.join(output_dir, "kuiper_gs.txt"),
         3: os.path.join(output_dir, "telesat_gs.txt")
     }
     
@@ -60,7 +60,7 @@ def classify_satellites():
     # 打印统计结果
     print("分类完成！统计结果：")
     print(f"Starlink (标签1): {counts[1]} 个卫星")
-    print(f"OneWeb (标签2): {counts[2]} 个卫星")
+    print(f"Kuiper (标签2): {counts[2]} 个卫星")
     print(f"Telesat (标签3): {counts[3]} 个卫星")
     print(f"总计: {sum(counts.values())} 个卫星")
     
@@ -68,7 +68,7 @@ def classify_satellites():
     print("\n输出文件：")
     for tag, file_path in output_files.items():
         if os.path.exists(file_path):
-            constellation_names = {1: "Starlink", 2: "OneWeb", 3: "Telesat"}
+            constellation_names = {1: "Starlink", 2: "Kuiper", 3: "Telesat"}
             print(f"{constellation_names[tag]}: {file_path}")
 
 if __name__ == "__main__":
