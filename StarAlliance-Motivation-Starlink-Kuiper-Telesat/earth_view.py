@@ -28,9 +28,9 @@ if not CARTOPY_AVAILABLE and not BASEMAP_AVAILABLE:
     print("推荐使用 Cartopy，功能更强大且维护更好。")
 
 CONSTELLATIONS = {
-        'starlink': {'file': './classified_gs/starlink_gs.txt', 'color': "#1D07EB", 'alpha': 0.5, 'label': 'Starlink'},
+        'starlink': {'file': './classified_gs/starlink_gs.txt', 'color': "#7fcdbb", 'alpha': 0.5, 'label': 'Starlink'},
         'oneweb':   {'file': './classified_gs/oneweb_gs.txt',   'color': '#FDD835', 'alpha': 0.5, 'label': 'OneWeb'},
-        'telesat':  {'file': './classified_gs/telesat_gs.txt',  'color': '#BA68C8', 'alpha': 0.5, 'label': 'Telesat'}
+        'telesat':  {'file': './classified_gs/telesat_gs.txt',  'color': '#238443', 'alpha': 0.5, 'label': 'Telesat'}
     }
 
 def read_satellite_data(file_path):
@@ -89,8 +89,10 @@ def plot_constellation_coverage(ax, constellation_config, constellation_name):
     # 根据星座类型设置不同的覆盖半径
     if constellation_name == 'telesat':
         coverage_radius_km = 1000  # Telesat使用1000km半径
+    elif constellation_name == 'oneweb':
+        coverage_radius_km = 600
     else:
-        coverage_radius_km = 700   # Starlink和OneWeb使用600km半径
+        coverage_radius_km = 600
     
     # 将km转换为度数（地球周长约40,075km，360度）
     coverage_radius_deg = coverage_radius_km * 360 / 40075
@@ -113,6 +115,16 @@ def plot_constellation_coverage(ax, constellation_config, constellation_name):
                        linewidth=0.3,
                        transform=ccrs.PlateCarree())
         ax.add_patch(circle)
+        
+        # 添加虚线外框 - 使边界更清晰
+        circle_border = Circle((lon, lat), coverage_radius_deg, 
+                             facecolor='none', 
+                             edgecolor=constellation_config['color'],
+                             linewidth=1.5,
+                             linestyle='--',  # 虚线样式
+                             alpha=0.8,
+                             transform=ccrs.PlateCarree())
+        ax.add_patch(circle_border)
         
         # 添加卫星位置点 - 更亮的点
         ax.plot(lon, lat, 'o', color=constellation_config['color'], markersize=1.2, 
@@ -181,17 +193,21 @@ def plot_all_constellations_cartopy():
     legend_elements = []
     coverage_info = []
     
-    # 绘制所有星座
-    for constellation_name, config in constellations.items():
-        satellite_count, coverage_radius = plot_constellation_coverage(ax, config, constellation_name)
-        if satellite_count > 0:
-            total_satellites += satellite_count
-            coverage_info.append(f"{config['label']}: {satellite_count} sats ({coverage_radius}km)")
-            print(f"绘制 {satellite_count} 个 {config['label']} 卫星覆盖区域 (半径: {coverage_radius}km)")
-            # 添加到图例
-            from matplotlib.patches import Patch
-            legend_elements.append(Patch(facecolor=config['color'], alpha=0.7, label=config['label'],
-                                        edgecolor='black', linewidth=1))
+    # 绘制所有星座 - 按指定顺序：Telesat(底层) -> Starlink(中层) -> OneWeb(顶层)
+    draw_order = ['telesat', 'starlink', 'oneweb']
+    
+    for constellation_name in draw_order:
+        if constellation_name in constellations:
+            config = constellations[constellation_name]
+            satellite_count, coverage_radius = plot_constellation_coverage(ax, config, constellation_name)
+            if satellite_count > 0:
+                total_satellites += satellite_count
+                coverage_info.append(f"{config['label']}: {satellite_count} sats ({coverage_radius}km)")
+                print(f"绘制 {satellite_count} 个 {config['label']} 卫星覆盖区域 (半径: {coverage_radius}km) - {'顶层' if constellation_name=='oneweb' else '中层' if constellation_name=='starlink' else '底层'}")
+                # 添加到图例
+                from matplotlib.patches import Patch
+                legend_elements.append(Patch(facecolor=config['color'], alpha=0.7, label=config['label'],
+                                            edgecolor='black', linewidth=1))
     
     # 添加美化图例
     if legend_elements:
@@ -202,8 +218,8 @@ def plot_all_constellations_cartopy():
             text.set_color('black')
     
     # 设置美化标题
-    plt.suptitle('Global Satellite Constellation Coverage', 
-                fontsize=24, fontweight='bold', color='black', y=0.95)
+    # plt.suptitle('Global Satellite Constellation Coverage', 
+                # fontsize=24, fontweight='bold', color='black', y=0.95)
     coverage_text = " • ".join(coverage_info)
     plt.title(f'Total: {total_satellites} satellites\n{coverage_text}', 
               fontsize=14, color='black', pad=20)
@@ -284,6 +300,15 @@ def plot_earth_coverage_basemap():
                            linewidth=0.2)
             plt.gca().add_patch(circle)
             
+            # 添加虚线外框 - 使边界更清晰
+            circle_border = Circle((x, y), coverage_radius_deg * 111320,
+                                 facecolor='none',
+                                 edgecolor=config['color'],
+                                 linewidth=1.2,
+                                 linestyle='--',  # 虚线样式
+                                 alpha=0.8)
+            plt.gca().add_patch(circle_border)
+            
             # 添加卫星位置点
             plt.plot(x, y, 'o', color=config['color'], markersize=0.8, 
                     markeredgecolor='black', markeredgewidth=0.1)
@@ -294,8 +319,8 @@ def plot_earth_coverage_basemap():
                       for config in constellations.values()]
     plt.legend(handles=legend_elements, loc='lower left', fontsize=14, framealpha=0.9)
     
-    plt.title(f'Satellite Constellations Global Coverage\n(Total: {total_satellites} satellites, 600km radius)', 
-              fontsize=18, fontweight='bold', pad=20)
+    # plt.title(f'Satellite Constellations Global Coverage\n(Total: {total_satellites} satellites, 600km radius)', 
+            #   fontsize=18, fontweight='bold', pad=20)
     
     plt.tight_layout()
     plt.savefig('./satellite_earth_coverage_basemap.png', dpi=300, bbox_inches='tight', 
