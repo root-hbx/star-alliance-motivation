@@ -65,8 +65,8 @@ def create_earth_base_cartopy():
     # 添加经纬网格 - 更精细的网格
     gl = ax.gridlines(draw_labels=True, dms=False, x_inline=False, y_inline=False,
                      alpha=0.4, linewidth=0.5, color='gray', linestyle='--')
-    gl.xlabel_style = {'size': 12, 'color': 'black'}
-    gl.ylabel_style = {'size': 12, 'color': 'black'}
+    gl.xlabel_style = {'size': 14, 'color': 'black', 'weight': 'bold'}
+    gl.ylabel_style = {'size': 14, 'color': 'black', 'weight': 'bold'}
     gl.xlocator = plt.FixedLocator([-180, -120, -60, 0, 60, 120, 180])
     gl.ylocator = plt.FixedLocator([-90, -60, -30, 0, 30, 60, 90])
     
@@ -119,9 +119,9 @@ def plot_constellation_coverage(ax, constellation_config, constellation_name):
         ax.add_patch(circle_border)
         
         # 添加卫星位置点 - 更亮的点
-        ax.plot(lon, lat, 'o', color=constellation_config['color'], markersize=1.2, 
-               markeredgecolor='black', markeredgewidth=0.3,
-               transform=ccrs.PlateCarree(), alpha=0.8)
+        # ax.plot(lon, lat, 'o', color=constellation_config['color'], markersize=1.2, 
+        #        markeredgecolor='black', markeredgewidth=0.3,
+        #        transform=ccrs.PlateCarree(), alpha=0.8)
     
     return len(satellite_data), coverage_radius_km
 
@@ -163,7 +163,7 @@ def plot_single_constellation_cartopy(constellation_name):
     fig.patch.set_facecolor('white')
     
     # 保存图片
-    filename = f'./cartopy_{constellation_name}.png'
+    filename = f'./[Background]-{config["label"]}-Coverage.pdf'
     plt.tight_layout()
     plt.savefig(filename, dpi=300, bbox_inches='tight', 
                 facecolor='white', edgecolor='none')
@@ -215,7 +215,7 @@ def plot_all_constellations_cartopy():
     fig.patch.set_facecolor('white')
     
     # 保存图片
-    filename = './cartopy_all.png'
+    filename = './[Background]-All-Coverage.pdf'
     plt.tight_layout()
     plt.savefig(filename, dpi=300, bbox_inches='tight', 
                 facecolor='white', edgecolor='none')
@@ -394,22 +394,22 @@ if __name__ == "__main__":
         exit(1)
     
     print("=== 高级卫星覆盖图生成工具 ===")
-    print("将生成4张高质量图片：")
-    print("1. cartopy_starlink.png - Starlink单独覆盖图 (600km)")
-    print("2. cartopy_kuiper.png - Kuiper单独覆盖图 (600km)") 
-    print("3. cartopy_telesat.png - Telesat单独覆盖图 (1000km)")
-    print("4. cartopy_all.png - 三星座合并覆盖图")
+    print("将生成4张高质量PDF图片：")
+    print("1. [Background]-Starlink-Coverage.pdf - Starlink单独覆盖图 (600km)")
+    print("2. [Background]-Kuiper-Coverage.pdf - Kuiper单独覆盖图 (600km)") 
+    print("3. [Background]-Telesat-Coverage.pdf - Telesat单独覆盖图 (1000km)")
+    print("4. [Background]-All-Coverage.pdf - 三星座合并覆盖图")
     
     # 检查可用的绘图库并绘制地图
     if CARTOPY_AVAILABLE:
         print("\n使用Cartopy绘制高级地球背景地图...")
         plot_earth_coverage_cartopy()
-        print("\n🎉 所有高质量图片生成完成！")
+        print("\n🎉 所有高质量PDF图片生成完成！")
         print("\n生成的文件:")
-        print("├── cartopy_starlink.png (600km覆盖)")
-        print("├── cartopy_kuiper.png (600km覆盖)")
-        print("├── cartopy_telesat.png (1000km覆盖)")
-        print("└── cartopy_all.png (多星座合并)")
+        print("├── [Background]-Starlink-Coverage.pdf (600km覆盖)")
+        print("├── [Background]-Kuiper-Coverage.pdf (600km覆盖)")
+        print("├── [Background]-Telesat-Coverage.pdf (1000km覆盖)")
+        print("└── [Background]-All-Coverage.pdf (多星座合并)")
     else:
         print("错误：需要安装cartopy库才能绘制真实地球背景")
         print("请运行以下命令：")
