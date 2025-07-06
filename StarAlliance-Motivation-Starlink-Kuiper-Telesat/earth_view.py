@@ -30,7 +30,7 @@ if not CARTOPY_AVAILABLE and not BASEMAP_AVAILABLE:
 CONSTELLATIONS = {
         'starlink': {'file': './classified_gs/starlink_gs.txt', 'color': "#7fcdbb", 'alpha': 0.5, 'label': 'Starlink'},
         'kuiper':   {'file': './classified_gs/kuiper_gs.txt',   'color': '#FDD835', 'alpha': 0.5, 'label': 'Kuiper'},
-        'telesat':  {'file': './classified_gs/telesat_gs.txt',  'color': '#238443', 'alpha': 0.5, 'label': 'Telesat'}
+        'telesat':  {'file': './classified_gs/telesat_gs.txt',  'color': '#6a51a3', 'alpha': 0.5, 'label': 'Telesat'}
     }
 
 def read_satellite_data(file_path):
@@ -46,37 +46,29 @@ def read_satellite_data(file_path):
     return satellites
 
 def create_earth_base_cartopy():
-    """创建基础的地球地图 - 高级版本"""
-    # 创建图形和地图投影
-    fig = plt.figure(figsize=(20, 12))
-    ax = plt.axes(projection=ccrs.Robinson())
+    """创建基础的地球地图 - 矩形投影版本"""
+    # 创建图形和地图投影 - 使用PlateCarree投影显示矩形区域
+    fig = plt.figure(figsize=(24, 12))
+    ax = plt.axes(projection=ccrs.PlateCarree())
     
-    # 设置全球范围
-    ax.set_global()
+    # 设置显示范围：经度-180到180度，纬度-90到90度
+    ax.set_extent([-180, 180, -90, 90], crs=ccrs.PlateCarree())
     
     # 添加高级地球特征 - 使用Natural Earth数据
-    ax.add_feature(cfeature.LAND, color='#3a5f3a', alpha=0.9)  # 深绿色陆地
-    ax.add_feature(cfeature.OCEAN, color='#1e3a5f', alpha=0.9)  # 深蓝色海洋
+    ax.add_feature(cfeature.LAND, color='#f0f0f0', alpha=0.8)  # 浅灰色陆地
+    ax.add_feature(cfeature.OCEAN, color='#e6f3ff', alpha=0.8)  # 浅蓝色海洋
     ax.add_feature(cfeature.COASTLINE, linewidth=0.8, color='#2c3e50', alpha=0.8)
     ax.add_feature(cfeature.BORDERS, linewidth=0.5, alpha=0.6, color='#34495e')
-    ax.add_feature(cfeature.LAKES, color='#1e3a5f', alpha=0.8)
-    ax.add_feature(cfeature.RIVERS, color='#1e3a5f', alpha=0.6, linewidth=0.5)
-    
-    # 添加山脉和地形特征
-    try:
-        # 尝试添加地形阴影
-        ax.stock_img()
-        ax.add_feature(cfeature.LAND, color='none', alpha=0.3)
-        ax.add_feature(cfeature.OCEAN, color='none', alpha=0.3)
-    except Exception:
-        # 如果无法加载地形图，使用颜色渐变
-        pass
+    ax.add_feature(cfeature.LAKES, color='#e6f3ff', alpha=0.8)
+    ax.add_feature(cfeature.RIVERS, color='#e6f3ff', alpha=0.6, linewidth=0.5)
     
     # 添加经纬网格 - 更精细的网格
     gl = ax.gridlines(draw_labels=True, dms=False, x_inline=False, y_inline=False,
-                     alpha=0.3, linewidth=0.5, color='gray', linestyle='--')
-    gl.xlabel_style = {'size': 10, 'color': 'black'}
-    gl.ylabel_style = {'size': 10, 'color': 'black'}
+                     alpha=0.4, linewidth=0.5, color='gray', linestyle='--')
+    gl.xlabel_style = {'size': 12, 'color': 'black'}
+    gl.ylabel_style = {'size': 12, 'color': 'black'}
+    gl.xlocator = plt.FixedLocator([-180, -120, -60, 0, 60, 120, 180])
+    gl.ylocator = plt.FixedLocator([-90, -60, -30, 0, 30, 60, 90])
     
     return fig, ax
 
@@ -153,21 +145,19 @@ def plot_single_constellation_cartopy(constellation_name):
         print(f"警告：{config['label']} 数据文件不存在或为空")
         return
     
-    # 添加美化图例
+    # 添加美化图例 - 放在矩形区域内
     from matplotlib.patches import Patch
     legend_elements = [Patch(facecolor=config['color'], alpha=0.7, label=config['label'], 
                             edgecolor='black', linewidth=1)]
-    legend = ax.legend(handles=legend_elements, loc='lower left', fontsize=16, 
+    legend = ax.legend(handles=legend_elements, loc='upper right', fontsize=16, 
                       framealpha=0.9, facecolor='white', edgecolor='black')
     legend.get_frame().set_facecolor('white')
     for text in legend.get_texts():
         text.set_color('black')
     
-    # 设置美化标题
+    # 设置美化标题 - 调整位置避免与经度刻度重叠
     plt.suptitle(f'{config["label"]} Global Coverage', 
-                fontsize=24, fontweight='bold', color='black', y=0.95)
-    plt.title(f'{satellite_count} satellites • {coverage_radius}km coverage radius', 
-              fontsize=16, color='black', pad=20)
+                fontsize=24, fontweight='bold', color='black', y=0.97)
     
     # 设置白色背景
     fig.patch.set_facecolor('white')
@@ -209,20 +199,17 @@ def plot_all_constellations_cartopy():
                 legend_elements.append(Patch(facecolor=config['color'], alpha=0.7, label=config['label'],
                                             edgecolor='black', linewidth=1))
     
-    # 添加美化图例
+    # 添加美化图例 - 放在矩形区域内
     if legend_elements:
-        legend = ax.legend(handles=legend_elements, loc='lower left', fontsize=16, 
+        legend = ax.legend(handles=legend_elements, loc='upper right', fontsize=16, 
                           framealpha=0.9, facecolor='white', edgecolor='black')
         legend.get_frame().set_facecolor('white')
         for text in legend.get_texts():
             text.set_color('black')
     
-    # 设置美化标题
-    # plt.suptitle('Global Satellite Constellation Coverage', 
-                # fontsize=24, fontweight='bold', color='black', y=0.95)
-    coverage_text = " • ".join(coverage_info)
-    plt.title(f'Total: {total_satellites} satellites\n{coverage_text}', 
-              fontsize=14, color='black', pad=20)
+    # 设置美化标题 - 调整位置避免与经度刻度重叠
+    plt.suptitle('Global Satellite Constellation Coverage', 
+                fontsize=24, fontweight='bold', color='black', y=0.97)
     
     # 设置白色背景
     fig.patch.set_facecolor('white')
