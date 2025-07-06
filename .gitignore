@@ -1,0 +1,5 @@
+SatellitePositions/
+__pycache__/
+CesiumAPP/
+*.txt
+.idea/
