@@ -48,8 +48,10 @@ def read_satellite_data(file_path):
 def create_earth_base_cartopy():
     """创建基础的地球地图 - 矩形投影版本"""
     # 创建图形和地图投影 - 使用PlateCarree投影显示矩形区域
-    fig = plt.figure(figsize=(12, 7))
-    ax = plt.axes(projection=ccrs.PlateCarree())
+    fig = plt.figure(figsize=(14, 9))
+    # 使用subplot参数最大化地图区域，减少空白边距
+    # [left, bottom, width, height] - 精确控制地图位置和大小，最大化填充14×9画布
+    ax = plt.axes(projection=ccrs.PlateCarree(), position=[0.01, 0.02, 0.98, 0.96])
     
     # 设置显示范围：经度-180到180度，纬度-90到90度
     ax.set_extent([-180, 180, -90, 90], crs=ccrs.PlateCarree())
@@ -149,23 +151,25 @@ def plot_single_constellation_cartopy(constellation_name):
     from matplotlib.patches import Patch
     legend_elements = [Patch(facecolor=config['color'], alpha=0.7, label=config['label'], 
                             edgecolor='black', linewidth=1)]
-    legend = ax.legend(handles=legend_elements, loc='upper right', fontsize=16, 
+    legend = ax.legend(handles=legend_elements, loc='upper right', fontsize=40, 
                       framealpha=0.9, facecolor='white', edgecolor='black')
     legend.get_frame().set_facecolor('white')
     for text in legend.get_texts():
         text.set_color('black')
+        text.set_weight('bold')  # 设置图例文字为粗体
     
     # 设置美化标题 - 调整位置避免与经度刻度重叠
-    plt.suptitle(f'{config["label"]} Global Coverage', 
-                fontsize=24, fontweight='bold', color='black', y=0.97)
+    # plt.suptitle(f'{config["label"]} Global Coverage', 
+    #             fontsize=40, fontweight='bold', color='black', y=0.97)
     
     # 设置白色背景
     fig.patch.set_facecolor('white')
     
     # 保存图片
     filename = f'./[Background]-{config["label"]}-Coverage.pdf'
-    plt.tight_layout()
-    plt.savefig(filename, dpi=300, bbox_inches='tight', 
+    # 手动调整布局以最大化地图区域 - 与axes position保持一致
+    plt.subplots_adjust(left=0.01, right=0.99, top=0.98, bottom=0.02)
+    plt.savefig(filename, dpi=300, bbox_inches=None, 
                 facecolor='white', edgecolor='none')
     plt.close()
     
@@ -201,23 +205,25 @@ def plot_all_constellations_cartopy():
     
     # 添加美化图例 - 放在矩形区域内
     if legend_elements:
-        legend = ax.legend(handles=legend_elements, loc='upper right', fontsize=16, 
+        legend = ax.legend(handles=legend_elements, loc='upper right', fontsize=40, 
                           framealpha=0.9, facecolor='white', edgecolor='black')
         legend.get_frame().set_facecolor('white')
         for text in legend.get_texts():
             text.set_color('black')
+            text.set_weight('bold')  # 设置图例文字为粗体
     
     # 设置美化标题 - 调整位置避免与经度刻度重叠
-    plt.suptitle('Global Satellite Constellation Coverage', 
-                fontsize=24, fontweight='bold', color='black', y=0.97)
+    # plt.suptitle('Global Satellite Constellation Coverage', 
+    #             fontsize=40, fontweight='bold', color='black', y=0.97)
     
     # 设置白色背景
     fig.patch.set_facecolor('white')
     
     # 保存图片
     filename = './[Background]-All-Coverage.pdf'
-    plt.tight_layout()
-    plt.savefig(filename, dpi=300, bbox_inches='tight', 
+    # 手动调整布局以最大化地图区域 - 与axes position保持一致
+    plt.subplots_adjust(left=0.01, right=0.99, top=0.98, bottom=0.02)
+    plt.savefig(filename, dpi=300, bbox_inches=None, 
                 facecolor='white', edgecolor='none')
     plt.close()
     
@@ -304,7 +310,7 @@ def plot_earth_coverage_basemap():
     from matplotlib.patches import Patch
     legend_elements = [Patch(facecolor=config['color'], alpha=0.6, label=config['label']) 
                       for config in constellations.values()]
-    plt.legend(handles=legend_elements, loc='lower left', fontsize=14, framealpha=0.9)
+    plt.legend(handles=legend_elements, loc='lower left', fontsize=40, framealpha=0.9)
     
     # plt.title(f'Satellite Constellations Global Coverage\n(Total: {total_satellites} satellites, 600km radius)', 
             #   fontsize=18, fontweight='bold', pad=20)
