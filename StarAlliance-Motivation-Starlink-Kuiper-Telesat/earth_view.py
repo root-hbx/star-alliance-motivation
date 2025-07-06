@@ -30,7 +30,7 @@ if not CARTOPY_AVAILABLE and not BASEMAP_AVAILABLE:
 CONSTELLATIONS = {
         'starlink': {'file': './classified_gs/starlink_gs.txt', 'color': "#7fcdbb", 'alpha': 0.5, 'label': 'Starlink'},
         'kuiper':   {'file': './classified_gs/kuiper_gs.txt',   'color': '#FDD835', 'alpha': 0.5, 'label': 'Kuiper'},
-        'telesat':  {'file': './classified_gs/telesat_gs.txt',  'color': '#6a51a3', 'alpha': 0.5, 'label': 'Telesat'}
+        'telesat':  {'file': './classified_gs/telesat_gs.txt',  'color': '#225ea8', 'alpha': 0.5, 'label': 'Telesat'}
     }
 
 def read_satellite_data(file_path):
@@ -48,7 +48,7 @@ def read_satellite_data(file_path):
 def create_earth_base_cartopy():
     """创建基础的地球地图 - 矩形投影版本"""
     # 创建图形和地图投影 - 使用PlateCarree投影显示矩形区域
-    fig = plt.figure(figsize=(24, 12))
+    fig = plt.figure(figsize=(12, 7))
     ax = plt.axes(projection=ccrs.PlateCarree())
     
     # 设置显示范围：经度-180到180度，纬度-90到90度
