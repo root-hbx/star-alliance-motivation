@@ -48,10 +48,9 @@ def read_satellite_data(file_path):
 def create_earth_base_cartopy():
     """创建基础的地球地图 - 矩形投影版本"""
     # 创建图形和地图投影 - 使用PlateCarree投影显示矩形区域
-    fig = plt.figure(figsize=(14, 9))
-    # 使用subplot参数最大化地图区域，减少空白边距
-    # [left, bottom, width, height] - 精确控制地图位置和大小，最大化填充14×9画布
-    ax = plt.axes(projection=ccrs.PlateCarree(), position=[0.01, 0.02, 0.98, 0.96])
+    fig = plt.figure(figsize=(14, 10))
+    # 完全占满画布，不留任何边距
+    ax = plt.axes(projection=ccrs.PlateCarree(), position=[0.0, 0.0, 1.0, 1.0])
     
     # 设置显示范围：经度-180到180度，纬度-90到90度
     ax.set_extent([-180, 180, -90, 90], crs=ccrs.PlateCarree())
@@ -64,11 +63,9 @@ def create_earth_base_cartopy():
     ax.add_feature(cfeature.LAKES, color='#e6f3ff', alpha=0.8)
     ax.add_feature(cfeature.RIVERS, color='#e6f3ff', alpha=0.6, linewidth=0.5)
     
-    # 添加经纬网格 - 更精细的网格
-    gl = ax.gridlines(draw_labels=True, dms=False, x_inline=False, y_inline=False,
+    # 添加经纬网格 - 不显示标签，只显示网格线
+    gl = ax.gridlines(draw_labels=False, dms=False, x_inline=False, y_inline=False,
                      alpha=0.4, linewidth=0.5, color='gray', linestyle='--')
-    gl.xlabel_style = {'size': 14, 'color': 'black', 'weight': 'bold'}
-    gl.ylabel_style = {'size': 14, 'color': 'black', 'weight': 'bold'}
     gl.xlocator = plt.FixedLocator([-180, -120, -60, 0, 60, 120, 180])
     gl.ylocator = plt.FixedLocator([-90, -60, -30, 0, 30, 60, 90])
     
@@ -167,9 +164,8 @@ def plot_single_constellation_cartopy(constellation_name):
     
     # 保存图片
     filename = f'./[Background]-{config["label"]}-Coverage.pdf'
-    # 手动调整布局以最大化地图区域 - 与axes position保持一致
-    plt.subplots_adjust(left=0.01, right=0.99, top=0.98, bottom=0.02)
-    plt.savefig(filename, dpi=300, bbox_inches=None, 
+    # 地图已完全占满画布，不需要调整布局
+    plt.savefig(filename, dpi=300, bbox_inches='tight', pad_inches=0,
                 facecolor='white', edgecolor='none')
     plt.close()
     
@@ -221,9 +217,8 @@ def plot_all_constellations_cartopy():
     
     # 保存图片
     filename = './[Background]-All-Coverage.pdf'
-    # 手动调整布局以最大化地图区域 - 与axes position保持一致
-    plt.subplots_adjust(left=0.01, right=0.99, top=0.98, bottom=0.02)
-    plt.savefig(filename, dpi=300, bbox_inches=None, 
+    # 地图已完全占满画布，不需要调整布局
+    plt.savefig(filename, dpi=300, bbox_inches='tight', pad_inches=0,
                 facecolor='white', edgecolor='none')
     plt.close()
     
