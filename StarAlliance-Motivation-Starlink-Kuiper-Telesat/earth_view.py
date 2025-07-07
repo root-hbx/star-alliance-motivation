@@ -1,5 +1,10 @@
 import matplotlib.pyplot as plt
+import matplotlib
 import os
+
+# 设置字体为学术论文标准 - 与参考脚本保持一致
+matplotlib.rcParams["font.family"] = "serif"
+plt.rcParams["pdf.fonttype"] = 42
 
 # 尝试导入地图库
 try:
@@ -153,7 +158,8 @@ def plot_single_constellation_cartopy(constellation_name):
     legend.get_frame().set_facecolor('white')
     for text in legend.get_texts():
         text.set_color('black')
-        text.set_weight('bold')  # 设置图例文字为粗体
+        text.set_weight('demibold')  # 设置图例文字为demibold，与参考脚本保持一致
+        text.set_fontfamily('serif')  # 设置图例文字为serif字体
     
     # 设置美化标题 - 调整位置避免与经度刻度重叠
     # plt.suptitle(f'{config["label"]} Global Coverage', 
@@ -206,7 +212,8 @@ def plot_all_constellations_cartopy():
         legend.get_frame().set_facecolor('white')
         for text in legend.get_texts():
             text.set_color('black')
-            text.set_weight('bold')  # 设置图例文字为粗体
+            text.set_weight('demibold')  # 设置图例文字为demibold，与参考脚本保持一致
+            text.set_fontfamily('serif')  # 设置图例文字为serif字体
     
     # 设置美化标题 - 调整位置避免与经度刻度重叠
     # plt.suptitle('Global Satellite Constellation Coverage', 
