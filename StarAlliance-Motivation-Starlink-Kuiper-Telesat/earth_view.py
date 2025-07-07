@@ -145,7 +145,8 @@ def plot_single_constellation_cartopy(constellation_name):
     legend_elements = [Patch(facecolor=config['color'], alpha=0.7, label=config['label'], 
                             edgecolor='black', linewidth=1)]
     legend = ax.legend(handles=legend_elements, loc='upper right', fontsize=40, 
-                      framealpha=0.9, facecolor='white', edgecolor='black')
+                      framealpha=0.9, facecolor='white', edgecolor='black',
+                      bbox_to_anchor=(0.992, 1.02))
     legend.get_frame().set_facecolor('white')
     for text in legend.get_texts():
         text.set_color('black')
@@ -188,8 +189,9 @@ def plot_all_constellations_cartopy():
                                             edgecolor='black', linewidth=1))
     
     if legend_elements:
-        legend = ax.legend(handles=legend_elements, loc='upper right', fontsize=40, 
-                          framealpha=0.9, facecolor='white', edgecolor='black')
+        legend = ax.legend(handles=legend_elements, loc='upper center', fontsize=40, 
+                    framealpha=0.9, facecolor='white', edgecolor='black',
+                    ncol=3, bbox_to_anchor=(0.5, 1.02), columnspacing=1.2)
         legend.get_frame().set_facecolor('white')
         for text in legend.get_texts():
             text.set_color('black')
