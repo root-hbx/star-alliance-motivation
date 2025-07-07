@@ -108,7 +108,7 @@ if __name__ == "__main__":
     """
 
 
-    # 上面将每个用户在每个时间片的SNO计算出来了，现在统计每个用户的切换次数
+    # Calculate SNO for each user at each time slot above, now count switches for each user
     user_switch_count = {}
     output_dir = "output"
     user_files = [f for f in os.listdir(output_dir) if f.endswith('_connected_SNO.txt')]
@@ -125,55 +125,50 @@ if __name__ == "__main__":
                     last_sno = sno
             user_switch_count[user_name] = switch_count
 
-    # 按照用户名的前两个字符进行分类，因为前两个字符表示用户所属的大洲。key是大洲名称，value是一个list，表示该大洲所有用户的切换次数
+    # Classify by first two characters of username, as they represent continent. Key is continent name, value is list of switch counts for all users in that continent
     continent_switch_count = {}
     for user_name, switch_count in user_switch_count.items():
-        continent = user_name[:2]  # 前两个字符表示大洲
+        continent = user_name[:2]  # First two characters represent continent
         if continent not in continent_switch_count:
             continent_switch_count[continent] = []
         continent_switch_count[continent].append(switch_count/24)
 
-    # 输出每个大洲的list
+    # Output list for each continent
     for continent, switch_counts in continent_switch_count.items():
         print(f"Continent: {continent}, Switch Counts: {switch_counts}")
 
-    # 画图：将每个大洲的切换次数画成小提琴图，x轴表示大洲名称，y轴表示切换次数
+    # Plot: create violin plot for switch counts by continent, x-axis shows continent names, y-axis shows switch counts
     import matplotlib.pyplot as plt
     import matplotlib
     
-    # 设置字体为学术论文标准
+    # Set font for academic papers
     matplotlib.rcParams["font.family"] = "serif"
     plt.rcParams["pdf.fonttype"] = 42
     
-    # 准备数据
+    # Prepare data
     continent_names = list(continent_switch_count.keys())
     continent_data = list(continent_switch_count.values())
     
-    # 创建图形 - 调整为与参考脚本一致的比例 (12, 8->7)
+    # Create figure - adjust to match reference script proportions (12, 8->7)
     plt.figure(figsize=(12, 7))
     ax1 = plt.gca()
     
-    # 创建小提琴图，使用更宽的宽度以在每个隔间中占据更多空间
+    # Create violin plot with wider width to occupy more space in each section
     parts = ax1.violinplot(continent_data, positions=range(len(continent_names)), 
                           widths=0.3, showmeans=True, showmedians=True)
     
-    # 定义与附图类似的颜色方案
-    # colors = ['#4477AA', '#EE6677', '#228833', '#CCBB44', '#66CCEE', '#AA3377']
-    # colors = ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F', '#EDC948']
-    # colors = ['#E69F00', '#56B4E9', '#009E73', '#0072B2', '#D55E00', '#CC79A7']
-    # colors = ['#8C564B', '#7F7F7F', '#9467BD', '#17BECF', '#BCBD22', '#E377C2']
-    # colors = ['#B2182B', '#1B7837', '#2166AC', '#D95F02', '#84542B', '#69408A']
+    # Define color scheme similar to reference figure
     colors = ["#d80007ff", '#0e8e0e', '#0000ff', '#D95F02', '#84542B', '#69408A']
     
-    # 设置小提琴图的颜色和透明度
+    # Set violin plot colors and transparency
     for i, pc in enumerate(parts['bodies']):
         color = colors[i % len(colors)]
         pc.set_facecolor(color)
         pc.set_alpha(0.95)
         pc.set_edgecolor('black')
-        pc.set_linewidth(2.0)  # 加粗边框线以增强视觉效果
+        pc.set_linewidth(2.0)  # Bold border lines for enhanced visual effect
     
-    # 设置其他部分的颜色 - 使用黑色以保持专业外观
+    # Set colors for other parts - use black for professional appearance
     parts['cmeans'].set_color('black')
     parts['cmeans'].set_linewidth(2.0)
     parts['cmedians'].set_color('black')
@@ -185,7 +180,7 @@ if __name__ == "__main__":
     parts['cmaxes'].set_color('black')
     parts['cmaxes'].set_linewidth(1.5)
     
-    # 创建大洲简写到全称的映射
+    # Create mapping from continent abbreviations to full names
     continent_mapping = {
         'AF': 'AF',
         'AS': 'AS',
@@ -195,28 +190,27 @@ if __name__ == "__main__":
         'SA': 'SA'
     }
     
-    # 将简写转换为全称
+    # Convert abbreviations to full names
     continent_full_names = [continent_mapping.get(name, name) for name in continent_names]
     
-    # 设置坐标轴
+    # Set axes
     ax1.set_xticks(range(len(continent_names)))
     ax1.set_xticklabels(continent_full_names)
     ax1.set_xlim(-0.5, len(continent_names) - 0.5)
     
-    # 计算Y轴范围，设置上限为70
+    # Calculate Y-axis range, set upper limit to 70
     all_values = [val for sublist in continent_data for val in sublist]
     y_min = min(all_values)
     ax1.set_ylim(y_min * 0.9, 70)
     
-    # 设置标签和字体 - 增大字号以提高可读性
+    # Set labels and fonts - increase font size for better readability
     plt.ylabel("Inter-Handoff", fontsize=40, fontweight="demibold")
-    # plt.ylabel("Inter-Handoff", fontsize=40)
     
-    # 调整刻度字体大小和字体族 - 增大刻度标签字号
+    # Adjust tick font size and family - increase tick label font size
     ax1.tick_params(axis="x", labelsize=40)
     ax1.tick_params(axis="y", labelsize=35)
     
-    # 设置刻度标签的字体为serif并加粗
+    # Set tick label fonts to serif and bold
     for label in ax1.get_xticklabels():
         label.set_fontfamily('serif')
         label.set_fontweight('demibold')
@@ -225,14 +219,14 @@ if __name__ == "__main__":
         label.set_fontfamily('serif')
         label.set_fontweight('demibold')
     
-    # 添加竖直分隔线，在每个大洲之间
+    # Add vertical separator lines between each continent
     for i in range(1, len(continent_names)):
         ax1.axvline(x=i-0.5, color='gray', linestyle='-', linewidth=1, alpha=0.5)
     
-    # 调整布局并保存
+    # Adjust layout and save
     plt.tight_layout()
     
-    # 确保输出目录存在
+    # Ensure output directory exists
     os.makedirs("output", exist_ok=True)
     
     plt.savefig("./[Background]-Inter-Handover-Counts.pdf", bbox_inches="tight", dpi=300)

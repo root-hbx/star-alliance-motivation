@@ -5,7 +5,7 @@ import visualization.constellation_visualization as constellation_visualization
 
 
 def Telesat():
-    # 星座名称
+    # Constellation name
     constellation_name = "Telesat"
     xml_file_path = "config/XML_constellation/" + constellation_name + ".xml"
     output_file_path = "visualization/CesiumAPP/"

@@ -1,31 +1,31 @@
 import os
 
 def classify_satellites():
-    """读取卫星位置文件并按照最后一列进行分类"""
+    """Read satellite position file and classify by last column"""
     
-    # 输入文件路径
+    # Input file path
     input_file = "SatellitePositions/time_step_3500.txt"
     
-    # 确保输出目录存在
+    # Ensure output directory exists
     output_dir = "classified_gs"
     os.makedirs(output_dir, exist_ok=True)
     
-    # 输出文件路径
+    # Output file paths
     output_files = {
         1: os.path.join(output_dir, "starlink_gs.txt"),
         2: os.path.join(output_dir, "kuiper_gs.txt"),
         3: os.path.join(output_dir, "telesat_gs.txt")
     }
     
-    # 初始化输出文件（清空内容）
+    # Initialize output files (clear content)
     for file_path in output_files.values():
         with open(file_path, 'w') as f:
-            pass  # 创建空文件
+            pass  # Create empty file
     
-    # 统计计数器
+    # Statistics counters
     counts = {1: 0, 2: 0, 3: 0}
     
-    # 读取输入文件并分类
+    # Read input file and classify
     try:
         with open(input_file, 'r') as f:
             for line_num, line in enumerate(f, 1):
@@ -35,37 +35,37 @@ def classify_satellites():
                 
                 parts = line.split()
                 if len(parts) < 4:
-                    print(f"警告：第{line_num}行格式不正确: {line}")
+                    print(f"Warning: Line {line_num} format incorrect: {line}")
                     continue
                 
                 try:
-                    # 解析最后一列（标签）
+                    # Parse last column (tag)
                     tag = int(parts[-1])
                     
                     if tag in output_files:
-                        # 将整行写入对应的文件
+                        # Write entire line to corresponding file
                         with open(output_files[tag], 'a') as f:
                             f.write(line + '\n')
                         counts[tag] += 1
                     else:
-                        print(f"警告：第{line_num}行标签未知: {tag}")
+                        print(f"Warning: Line {line_num} unknown tag: {tag}")
                         
                 except ValueError:
-                    print(f"警告：第{line_num}行标签无法解析为整数: {parts[-1]}")
+                    print(f"Warning: Line {line_num} tag cannot be parsed as integer: {parts[-1]}")
                     
     except FileNotFoundError:
-        print(f"错误：找不到输入文件 {input_file}")
+        print(f"Error: Input file not found {input_file}")
         return
     
-    # 打印统计结果
-    print("分类完成！统计结果：")
-    print(f"Starlink (标签1): {counts[1]} 个卫星")
-    print(f"Kuiper (标签2): {counts[2]} 个卫星")
-    print(f"Telesat (标签3): {counts[3]} 个卫星")
-    print(f"总计: {sum(counts.values())} 个卫星")
+    # Print statistics
+    print("Classification completed! Statistics:")
+    print(f"Starlink (tag 1): {counts[1]} satellites")
+    print(f"Kuiper (tag 2): {counts[2]} satellites")
+    print(f"Telesat (tag 3): {counts[3]} satellites")
+    print(f"Total: {sum(counts.values())} satellites")
     
-    # 显示输出文件
-    print("\n输出文件：")
+    # Show output files
+    print("\nOutput files:")
     for tag, file_path in output_files.items():
         if os.path.exists(file_path):
             constellation_names = {1: "Starlink", 2: "Kuiper", 3: "Telesat"}

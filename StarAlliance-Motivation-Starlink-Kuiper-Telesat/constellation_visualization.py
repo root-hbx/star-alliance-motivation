@@ -10,11 +10,11 @@ import ephem
 
 def add_coverage_circle(satellite, coverage_radius, color="BLUE"):
     """
-    添加覆盖范围的圆形
-    :param satellite: 卫星对象
-    :param coverage_radius: 覆盖范围半径
-    :param color: 圆形颜色
-    :return: JavaScript代码字符串
+    Add coverage range circle
+    :param satellite: Satellite object
+    :param coverage_radius: Coverage range radius
+    :param color: Circle color
+    :return: JavaScript code string
     """
     return "var coverageCircle = viewer.entities.add({name : '', position: Cesium.Cartesian3.fromDegrees(" \
            + str(math.degrees(satellite.sublong)) + ", " \
@@ -28,17 +28,17 @@ def add_coverage_circle(satellite, coverage_radius, color="BLUE"):
 
 
 
-# 该函数用来获取卫星对象列表
+# Get satellite objects list
 def get_satellites_list(
-        mean_motion,  # 平均运动率，即卫星每天围绕地球转动的次数
+        mean_motion,  # Mean motion (satellite orbits per day)
         altitude,
         number_of_orbit,
         number_of_satellite_per_orbit,
         inclination,
-        phase_shift = True,  # 相邻轨道之间的相位差
-        eccentricity = 0.0000001,  # 轨道偏心率
-        arg_perigee = 0.0,   # 轨道近地点角
-        epoch = "1949-10-01 00:00:00" # 基准时间
+        phase_shift = True,  # Phase shift between adjacent orbits
+        eccentricity = 0.0000001,  # Orbital eccentricity
+        arg_perigee = 0.0,   # Argument of perigee
+        epoch = "1949-10-01 00:00:00" # Reference epoch
         ):
     satellites = [None] * (number_of_orbit * number_of_satellite_per_orbit)
     count = 0
@@ -53,14 +53,14 @@ def get_satellites_list(
         for n_sat in range(0, number_of_satellite_per_orbit):
             mean_anomaly = orbit_wise_shift + (n_sat * 360 / number_of_satellite_per_orbit)
 
-            sat = ephem.EarthSatellite()  # 生成卫星对象
-            sat._epoch = epoch  # 设置卫星基准时间
-            sat._inc = ephem.degrees(inclination)  # 设置卫星的轨道倾角
-            sat._e = eccentricity  # 轨道偏心率
-            sat._raan = ephem.degrees(raan)  # 升交点赤经
-            sat._ap = arg_perigee  # 轨道近地点角
-            sat._M = ephem.degrees(mean_anomaly)  # 卫星在轨道内相对近地点的偏移角度，即轨内偏移
-            sat._n = mean_motion  # 平均运动率
+            sat = ephem.EarthSatellite()  # Create satellite object
+            sat._epoch = epoch  # Set satellite reference time
+            sat._inc = ephem.degrees(inclination)  # Set satellite orbital inclination
+            sat._e = eccentricity  # Orbital eccentricity
+            sat._raan = ephem.degrees(raan)  # Right ascension of ascending node
+            sat._ap = arg_perigee  # Argument of perigee
+            sat._M = ephem.degrees(mean_anomaly)  # Satellite orbital offset relative to perigee
+            sat._n = mean_motion  # Mean motion rate
 
             satellites[count] = {
                 "satellite": sat,
@@ -77,7 +77,7 @@ def get_satellites_list(
 
 
 
-# 获取卫星的临近卫星
+# Get neighboring satellites
 def get_neighbor_satellite(
         sat1_orb,sat1_rel_id,sat2_orb,sat2_rel_id,satellite,
         number_of_orbit, number_of_satellite_per_orbit):
@@ -95,7 +95,7 @@ def get_neighbor_satellite(
 
 
 
-# 获取卫星之间的ISL
+# Get Inter-Satellite Links (ISL) between satellites
 def get_ISL(satellite, number_of_orbit, number_of_satellite_per_orbit):
     links = {}
     count = 0
@@ -147,7 +147,7 @@ def visualization_constellation_without_ISL(constellation_information, shell_col
         inclination = shell[4]
         base_id = shell[5]
 
-        # 获取当前 shell 的颜色
+        # Get current shell color
         satellite_color = shell_colors[shell_index % len(shell_colors)]
 
         satellites = get_satellites_list(mean_motion_rev_per_day, altitude, number_of_orbit,
@@ -161,7 +161,7 @@ def visualization_constellation_without_ISL(constellation_information, shell_col
                 satellites[j]["altitude"] * 1000) + "), " \
                               + "ellipsoid : {radii : new Cesium.Cartesian3(30000.0, 30000.0, 30000.0), " \
                               + "material : Cesium.Color." + satellite_color + ".withAlpha(1),}});\n"
-            # 调用封装的覆盖范围函数
+            # Call coverage function
             content_string += add_coverage_circle(satellites[j]["satellite"], coverage_radius, satellite_color)
     return content_string
 
@@ -244,14 +244,14 @@ def visualization_constellation_with_ISL(constellation_information):
     return content_string
 
 
-# ISL参数是一个布尔变量，用来控制是否可视化ISL
+# ISL parameter is a boolean variable to control ISL visualization
 def constellation_visualization(constellation_name , xml_file_path ,output_file_path,
                                 head_html_file , tail_html_file ,ISL = False, satellite_color = "BLACK", coverage_radius = 600000):
 
 
-    # 读取星座配置信息
+    # Read constellation configuration information
     constellation_configuration_information = read_xml_file(xml_file_path)
-    # 卫星层数量
+    # Number of satellite shells
     number_of_shells = int(constellation_configuration_information['constellation']['number_of_shells'])
 
     constellation_information = []
@@ -266,14 +266,14 @@ def constellation_visualization(constellation_name , xml_file_path ,output_file_
             constellation_configuration_information['constellation']['shell' + str(count)]
             ['number_of_satellite_per_orbit'])
 
-        # 平均运动率，即卫星每天围绕地球转动的次数，计算方法是用卫星轨道周期的秒数除以一天总共的秒数（24*60*60=86400）
+        # Mean motion: number of satellite orbits per day, calculated as day total seconds (24*60*60=86400) divided by orbital period in seconds
         mean_motion_rev_per_day = 1.0 * 86400 / orbit_cycle
 
         constellation_information.append(
             [mean_motion_rev_per_day, altitude, number_of_orbit, number_of_satellite_per_orbit,
              inclination])
 
-    # 向每一层信息中添加base_id信息，即每一层第一颗卫星的编号
+    # Add base_id information to each shell - the ID of the first satellite in each shell
     for index in range(len(constellation_information)):
         if index == 0:
             constellation_information[index].append(0)
@@ -284,7 +284,7 @@ def constellation_visualization(constellation_name , xml_file_path ,output_file_
 
 
     if ISL:
-        # 可视化星座中的卫星和ISL
+        # Visualize satellites and ISL in constellation
         visualization_content = visualization_constellation_with_ISL(constellation_information)
         writer_html = open(output_file_path + constellation_name + "_with_ISL.html", 'w')
         with open(head_html_file, 'r') as fi:
@@ -294,7 +294,7 @@ def constellation_visualization(constellation_name , xml_file_path ,output_file_
             writer_html.write(fb.read())
         writer_html.close()
     else:
-        # 只可视化星座中的卫星，不可视化ISL
+        # Only visualize satellites in constellation, no ISL visualization
         shell_colors = ["RED", "BLUE", "GREEN", "YELLOW"]
         visualization_content = visualization_constellation_without_ISL(constellation_information, shell_colors,
                                                                         coverage_radius)
@@ -309,11 +309,11 @@ def constellation_visualization(constellation_name , xml_file_path ,output_file_
 
 def filter_orbits_to_ensure_coverage(constellation_information, coverage_radius, keep_ratios):
     """
-    根据每个 shell 的保留比例删除连续的轨道，确保所有 shell 能完全覆盖地球表面
-    :param constellation_information: 星座信息
-    :param coverage_radius: 每颗卫星的覆盖半径
-    :param keep_ratios: 每个 shell 的保留比例列表（长度需与 shell 数量一致）
-    :return: 修改后的星座信息
+    Remove consecutive orbits according to the retention ratio of each shell to ensure all shells can fully cover the Earth's surface
+    :param constellation_information: Constellation information
+    :param coverage_radius: Coverage radius of each satellite
+    :param keep_ratios: List of retention ratios for each shell (length must match number of shells)
+    :return: Modified constellation information
     """
     filtered_constellation_information = []
 
@@ -325,16 +325,16 @@ def filter_orbits_to_ensure_coverage(constellation_information, coverage_radius,
         inclination = shell[4]
         base_id = shell[5]
 
-        # 获取当前 shell 的保留比例
+        # Get retention ratio for current shell
         keep_ratio = keep_ratios[shell_index]
 
-        # 计算需要保留的轨道数量
+        # Calculate number of orbits to keep
         keep_orbit_count = int(number_of_orbit * keep_ratio)
 
-        # 保留前 keep_orbit_count 个连续轨道
+        # Keep the first keep_orbit_count consecutive orbits
         remaining_orbits = list(range(keep_orbit_count))
 
-        # 更新 shell 信息
+        # Update shell information
         filtered_constellation_information.append([
             mean_motion_rev_per_day, altitude, len(remaining_orbits), number_of_satellite_per_orbit, inclination, base_id
         ])
@@ -345,16 +345,16 @@ def filter_orbits_to_ensure_coverage(constellation_information, coverage_radius,
 
 def should_keep_orbit(satellites, orbit, coverage_radius, number_of_orbit, number_of_satellite_per_orbit):
     """
-    检查是否需要保留该轨道
-    :param satellites: 卫星列表
-    :param orbit: 当前轨道编号
-    :param coverage_radius: 覆盖半径
-    :param number_of_orbit: 轨道总数
-    :param number_of_satellite_per_orbit: 每轨道卫星数量
-    :return: 是否保留该轨道
+    Check whether this orbit should be kept
+    :param satellites: Satellite list
+    :param orbit: Current orbit number
+    :param coverage_radius: Coverage radius
+    :param number_of_orbit: Total number of orbits
+    :param number_of_satellite_per_orbit: Number of satellites per orbit
+    :return: Whether to keep this orbit
     """
-    # 简单逻辑：保留轨道的条件（可以根据覆盖范围计算更复杂的逻辑）
-    return orbit % 2 == 0  # 示例：保留偶数轨道
+    # Simple logic: conditions for keeping orbit (can calculate more complex logic based on coverage)
+    return orbit % 2 == 0  # Example: keep even orbits
 
 
 
@@ -362,8 +362,8 @@ import math
 
 def print_satellite_positions(filtered_constellation_information):
     """
-    打印每一层 shell 中被保留的卫星的经纬度和高度信息
-    :param filtered_constellation_information: 过滤后的星座信息
+    Print longitude, latitude and altitude information of satellites retained in each shell
+    :param filtered_constellation_information: Filtered constellation information
     """
     for shell_index, shell in enumerate(filtered_constellation_information):
         mean_motion_rev_per_day = shell[0]
@@ -376,7 +376,7 @@ def print_satellite_positions(filtered_constellation_information):
         print(f"Shell {shell_index + 1}:")
         for orbit_index in range(number_of_orbit):
             for satellite_index in range(number_of_satellite_per_orbit):
-                # 计算卫星的经纬度
+                # Calculate satellite longitude and latitude
                 longitude = (360.0 / number_of_satellite_per_orbit) * satellite_index
                 latitude = inclination * math.sin(math.radians((360.0 / number_of_orbit) * orbit_index))
                 height = altitude
@@ -398,19 +398,19 @@ if __name__ == '__main__':
     output_file_path = "./CesiumAPP/"
     head_html_file = "./html_head_tail/head.html"
     tail_html_file = "./html_head_tail/tail.html"
-    txt_output_path = "./SatellitePositions/"  # 保存卫星位置信息的目录
+    txt_output_path = "./SatellitePositions/"  # Directory to save satellite position information
 
-    # 创建保存卫星位置信息的目录
+    # Create directory to save satellite position information
     if not os.path.exists(txt_output_path):
         os.makedirs(txt_output_path)
 
-    # 读取星座配置信息
+    # Read constellation configuration information
     constellation_configuration_information = read_xml_file(xml_file_path)
     number_of_shells = int(constellation_configuration_information['constellation']['number_of_shells'])
 
-    # 构造星座信息时添加 base_id
+    # Add base_id when constructing constellation information
     constellation_information = []
-    base_id = 0  # 初始化 base_id
+    base_id = 0  # Initialize base_id
     for count in range(1, number_of_shells + 1):
         altitude = int(constellation_configuration_information['constellation']['shell' + str(count)]['altitude'])
         orbit_cycle = int(constellation_configuration_information['constellation']['shell' + str(count)]['orbit_cycle'])
@@ -455,7 +455,7 @@ if __name__ == '__main__':
         inclination = shell[4]
         base_id = shell[5]
 
-        # 获取当前 shell 的颜色
+        # Get current shell color
         satellite_color = shell_colors[shell_index % len(shell_colors)]
 
         satellites = get_satellites_list(mean_motion_rev_per_day, altitude, number_of_orbit,
@@ -476,7 +476,7 @@ if __name__ == '__main__':
                     height_km = satellites[j]["altitude"]
                     txt_file.write(f"{longitude:.2f} {latitude:.2f} {height_km:.2f} {shell_index + 1}\n")
 
-                    # 仅生成选定时间片的可视化信息
+                    # Generate visualization info only for selected time step
                     if time_step_index == selected_time_step_index:
                         visualization_content += "var redSphere = viewer.entities.add({name : '', position: Cesium.Cartesian3.fromDegrees(" \
                                                   + str(longitude) + ", " + str(latitude) + ", " + str(
